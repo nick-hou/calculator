@@ -3,6 +3,6 @@ import calcReducer from '../features/calc/calcSlice';
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    calculator: calcReducer,
   },
 });

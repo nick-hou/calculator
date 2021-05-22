@@ -8,15 +8,16 @@ export const calcSlice = createSlice({
   name: 'calculator',
   initialState,
   reducers: {
-    pushStage = (state, action) => {
-      
+    pressKey: (state, action) => {
+      console.log(action.payload);
+      return state;
     }
-  },
+  }
 });
 
-export const {  } = counterSlice.actions;
+export const { pressKey } = calcSlice.actions;
 
-export const select= (state) => state.;
+// export const select= (state) => state.;
 
 
-export default counterSlice.reducer;
+export default calcSlice.reducer;
