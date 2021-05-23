@@ -1,7 +1,7 @@
 #calculator {
   height: 70vh;
   width: 60vh;
-  margin: 15vh 20vh;
+  margin: 20vh auto;
 }
 
 .gridContainer {

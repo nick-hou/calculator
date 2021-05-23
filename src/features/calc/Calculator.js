@@ -14,16 +14,39 @@ export function Calculator() {
   // The queue contains the entire equation that needs to be solved, and will be stored in the Redux store.
   const [stageText, setStageText] = useState('0')
   const queueText = useSelector(state => state.calculator.queue)
-
+  const solution = useSelector(state => state.calculator.solution)
+  
   // An operator button is anything that requires a push to the queue - equals, all-clear, or any math operators.
   const clickOper = e => {
-    dispatch(pressKey(e.target.innerText))
+    const keyPressed = e.target.innerText
+    // Dispatch keypress to update the equation in queue
+    dispatch(pressKey({keyPressed, stageText}))
+    // Update the stage based on the key pressed
+    switch (keyPressed) {
+      // For /*-+, display that on the stage
+      case '/':
+      case '*':
+      case '+':
+      case '-':
+        setStageText(keyPressed);
+        break;
+      // For AC, clear the stage
+      case 'AC':
+        setStageText('0');
+        break;
+      // For =,
+      case '=':
+
+        setStageText(solution);
+        break;
+      default:
+        break;
+    }
   }
 
   // A "number" button is anything that gets handled locally in the stage - digits, decimal pt, or local clear
   const clickNum = e => {
     const keyPressed = e.target.innerText
-    console.log(keyPressed)
     switch (keyPressed) {
       case 'C':
         setStageText('0');
@@ -49,6 +72,8 @@ export function Calculator() {
       case '9':
         if(stageText === '0') {
           setStageText(keyPressed)
+        } else if(/[/*+-]/.test(stageText)) {
+          setStageText(keyPressed)
         } else {
           setStageText(stageText + keyPressed);
         }
@@ -58,10 +83,13 @@ export function Calculator() {
     }
   }
 
+  // Create a variable to show in the top display bar. Since the redux store doesn't update until we dispatch an operation, we need to add what's in the staging area to that display - but not if it's an operation.
+  let queueDisplay = queueText + (/[/*+-]/.test(stageText) ? '' : stageText)
+
   return (
     <div id="calculator">
       <div className="gridContainer">
-        <div className="display" id="queue">{queueText + stageText}</div>
+        <div className="display" id="queue">{queueDisplay}</div>
         <div className="display" id="stage">{stageText}</div>
         <div className="gridItem" id="btn1" onClick={clickNum}>1</div>
         <div className="gridItem" id="btn2" onClick={clickNum}>2</div>
