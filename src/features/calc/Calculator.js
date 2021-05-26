@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   pressKey
 } from './calcSlice';
+import { evaluate } from 'mathjs'
 import './Calculator.css';
 
 export function Calculator() {
@@ -14,8 +15,8 @@ export function Calculator() {
   // The queue contains the entire equation that needs to be solved, and will be stored in the Redux store.
   const [stageText, setStageText] = useState('0')
   const queueText = useSelector(state => state.calculator.queue)
-  const solution = useSelector(state => state.calculator.solution)
-  
+  const status = useSelector(state => state.calculator.status)
+
   // An operator button is anything that requires a push to the queue - equals, all-clear, or any math operators.
   const clickOper = e => {
     const keyPressed = e.target.innerText
@@ -36,8 +37,12 @@ export function Calculator() {
         break;
       // For =,
       case '=':
-
-        setStageText(solution);
+        // So.. this only barely works. Since dispatch is async-ish, if the browser runs fast enough, the queueText hasn't updated before it gets to this line.
+        // Ideally, I would know how to write an await and .then() to only run evaluate /after/ the state is updated.
+        const eq = queueText + stageText
+        console.log(eq)
+        const soln = evaluate(eq)
+        setStageText(soln);
         break;
       default:
         break;
@@ -50,6 +55,8 @@ export function Calculator() {
     switch (keyPressed) {
       case 'C':
         setStageText('0');
+        // If we click C after solving an equation, clear all
+        if(status === 'solved') dispatch(pressKey({keyPressed: 'AC'}))
         break;
       case '.':
         if (!stageText.includes('.')) {
@@ -83,7 +90,7 @@ export function Calculator() {
     }
   }
 
-  // Create a variable to show in the top display bar. Since the redux store doesn't update until we dispatch an operation, we need to add what's in the staging area to that display - but not if it's an operation.
+  // Create a variable to show in the top display bar. Since the redux store doesn't update until we dispatch an operation, we need to add what's in the staging area to that display - but not if it's an operation, or if we just hit =
   let queueDisplay = queueText + (/[/*+-]/.test(stageText) ? '' : stageText)
 
   return (

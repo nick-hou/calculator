@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   queue: '',
-  solution: '',
   status: 'inwork'
 };
 
@@ -20,7 +19,10 @@ export const calcSlice = createSlice({
         case '*':
         case '+':
         case '-':
-          if(state.status === 'solved') state.queue = '';
+          if(state.status === 'solved') {
+            state.queue = '';
+            state.status = 'inwork'
+          }
           if(/[/*+-]/.test(stage)) {
             state.queue = state.queue.substr(0, state.queue.length-1).concat(keyPressed);
           } else {
@@ -31,20 +33,18 @@ export const calcSlice = createSlice({
         case 'AC':
           state.status = 'inwork';
           state.queue = '';
-          state.solution = '';
           break;
         // For =, push '=' to the queue and update state's solution
         // Avoid using eval() for security reasons - so we'll make our own function!
         case '=':
           if(state.status === 'inwork') {
             state.status = 'solved';
-            state.queue = state.queue.concat(stage)
-            state.solution = Function('"use strict";return (' + state.queue + ')')();
-            state.queue = state.queue.concat('=');
+            state.queue = state.queue.concat(stage + '=')
           break;
           }
           break;
         default:
+          state.status = 'inwork'
           break;
       }
       return state;

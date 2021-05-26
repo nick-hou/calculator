@@ -27,12 +27,14 @@
   grid-column: 1 / 5;
   grid-row: 1;
   background-color: #AAAAAA;
+  overflow: hidden; /* not ideal */
 }
 
 #stage {
   grid-column: 1 / 5;
   grid-row: 2;
   background-color: #EEEEEE;
+  overflow: hidden; /* not ideal */
 }
 
 .gridItem {
