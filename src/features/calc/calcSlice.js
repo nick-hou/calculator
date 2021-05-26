@@ -35,15 +35,16 @@ export const calcSlice = createSlice({
           state.queue = '';
           break;
         // For =, push '=' to the queue and update state's solution
-        // Avoid using eval() for security reasons - so we'll make our own function!
         case '=':
-          if(state.status === 'inwork') {
+          // Yes, we do the regex check here twice, once in the component and again in the store. But this allows us to only write "dispatch(keyPressed)" once instead of for every switch case.
+          if(state.status === 'inwork' && !(/[/*+-]/.test(stage.split(-1)))) {
             state.status = 'solved';
             state.queue = state.queue.concat(stage + '=')
-          break;
+            break;
           }
           break;
         default:
+          if(state.status === 'solved') state.queue = ''
           state.status = 'inwork'
           break;
       }

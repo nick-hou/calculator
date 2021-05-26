@@ -37,12 +37,15 @@ export function Calculator() {
         break;
       // For =,
       case '=':
-        // So.. this only barely works. Since dispatch is async-ish, if the browser runs fast enough, the queueText hasn't updated before it gets to this line.
-        // Ideally, I would know how to write an await and .then() to only run evaluate /after/ the state is updated.
-        const eq = queueText + stageText
-        console.log(eq)
-        const soln = evaluate(eq)
-        setStageText(soln);
+        // Check for a valid equation, i.e. doesn't end with an operator
+        if(status==='inwork' && !(/[/*+-]/.test(stageText.split(-1)))) {
+          // So.. this only barely works. Since dispatch is async-ish, if the browser runs fast enough, the queueText hasn't updated before it gets to this line.
+          // Ideally, I would know how to write an await and .then() to only run evaluate /after/ the state is updated.
+          const eq = queueText + stageText
+          console.log(eq)
+          const soln = evaluate(eq)
+          setStageText(soln);
+        }
         break;
       default:
         break;
@@ -59,12 +62,23 @@ export function Calculator() {
         if(status === 'solved') dispatch(pressKey({keyPressed: 'AC'}))
         break;
       case '.':
-        if (!stageText.includes('.')) {
+        if(status === 'solved') {
+          // If we just solved an equation, start a new one with 0.xx
+          dispatch(pressKey({keyPressed: 'AC'}))
+          setStageText('0.')
+        }
+        else if (!stageText.includes('.')) {
+          // If not solved, check for an existing decimal in the stage
           setStageText(stageText + '.')
         }
         break;
       case '0':
-        if(stageText !== '0') {
+        if(status === 'solved') {
+          // If we just solved an equation, start a new one with 0.xx
+          dispatch(pressKey({keyPressed: 'AC'}))
+          setStageText('0')
+        }
+        else if(stageText !== '0') {
           setStageText(stageText + '0')
         }
         break;
@@ -78,10 +92,17 @@ export function Calculator() {
       case '8':
       case '9':
         if(stageText === '0') {
+          // If stage says 0, replace it with the new digit
           setStageText(keyPressed)
         } else if(/[/*+-]/.test(stageText)) {
+          // If we last pressed an operator, replace the stage with the new text
+          setStageText(keyPressed)
+        } else if (status === 'solved') {
+          // If we just solved an equation, clear the board. Equivalent to pressing AC
+          dispatch(pressKey({KeyPressed: 'AC'}))
           setStageText(keyPressed)
         } else {
+          // Otherwise, just push the digit
           setStageText(stageText + keyPressed);
         }
         break;
